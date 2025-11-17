@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>KI Leasing-Fahrräder Auslastung Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2196f3;
+      --accent: #43cea2;
+      --card-bg: #ffffffcc;
+      --background: #f5f8fa;
+      --text: #233044;
+      --shadow: 0 4px 24px 0 rgba(33,54,90,0.11);
+      --radius: 1.6em;
+      --padding: 2.4em;
+    }
+    body {
+      font-family: "Inter", Arial, sans-serif;
+      background: linear-gradient(120deg, #43cea2 0%, #185a9d 100%) no-repeat;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+    }
+    header {
+      width: 100%;
+      padding: 2em;
+      box-sizing: border-box;
+      background: var(--background);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    header h1 {
+      letter-spacing: 0.03em;
+      font-size: 2.2em;
+      margin: 0 0 0.5em 0;
+      color: var(--primary);
+    }
+    .dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2em;
+      margin: 3em auto;
+      max-width: 1200px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: var(--padding);
+      flex: 1 1 400px;
+      min-width: 340px;
+      transition: transform 0.16s, box-shadow 0.16s;
+      margin: 1em 0;
+    }
+    .card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 10px 32px 0 rgba(33,94,190,0.15);
+    }
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 1.5em;
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 1.3em;
+      letter-spacing: 0.01em;
+      text-align: left;
+    }
+    footer {
+      text-align: center;
+      color: #fff;
+      opacity: 0.7;
+      padding: 2em 0 1em 0;
+      font-size: 1em;
+    }
+    @media (max-width: 900px) {
+      .dashboard {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Leasing-Fahrräder: Zero-Shot Demand Forecasting </h1>
+    <p>Interaktive Vorschau auf Basis von Zeroshot Modellen – Daten für den nächsten Tag und die kommende Woche</p>
+  </header>
+  <section class="dashboard">
+    <div class="card">
+      <h2>Auslastung nächster Tag (stündlich)</h2>
+      <canvas id="chartDay" height="200"></canvas>
+    </div>
+    <div class="card">
+      <h2>Auslastung nächste Woche (täglich)</h2>
+      <canvas id="chartWeek" height="200"></canvas>
+    </div>
+  </section>
+  <footer>
+    &copy; 2025 LeasingBike Demo Dashboard
+  </footer>
+  <script>
+    // Demo-Daten
+    const hours = [...Array(24).keys()];
+    const usageDay = [541, 426, 301, 203, 132, 139, 287, 606, 1015, 645, 527, 600, 699, 733, 758, 829, 930, 1138, 1502, 1195, 1068, 1031, 922, 671]
+    const days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+    const usageWeek = [730, 687, 740, 690, 747, 709, 625];
+
+
+    // Tageschart
+    new Chart(document.getElementById('chartDay').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: hours.map(h => `${h}:00`),
+        datasets: [{
+          label: 'Auslastung',
+          data: usageDay,
+          backgroundColor: 'rgba(33,150,243,0.11)',
+          borderColor: 'rgba(33,150,243,1)',
+          borderWidth: 3,
+          fill: true,
+          pointRadius: 3,
+          tension: 0.27
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#fff',
+            borderColor: '#43cea2',
+            borderWidth: 1,
+            titleColor: '#12315c',
+            bodyColor: '#333'
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Stunde', color: '#129eb3', font: { weight: 600 }},
+            grid: { display: false }
+          },
+          y: {
+            title: { display: true, text: 'Auslastung', color: '#129eb3', font: { weight: 600 }},
+            min: 0,
+            suggestedMax: 400,
+            ticks: { stepSize: 50 }
+          }
+        }
+      }
+    });
+
+    // Wochenchart
+    new Chart(document.getElementById('chartWeek').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Auslastung',
+          data: usageWeek,
+          backgroundColor: 'rgba(76,175,80,0.11)',
+          borderColor: 'rgba(76,175,80,1)',
+          borderWidth: 3,
+          fill: true,
+          pointRadius: 5,
+          tension: 0.25
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#fff',
+            borderColor: '#43cea2',
+            borderWidth: 1,
+            titleColor: '#12315c',
+            bodyColor: '#333'
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Tag', color: '#129eb3', font: { weight: 600 }},
+            grid: { display: false }
+          },
+          y: {
+            title: { display: true, text: 'Auslastung', color: '#119e6a', font: { weight: 600 }},
+            min: 0,
+            suggestedMax: 400,
+            ticks: { stepSize: 50 }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
